@@ -4,6 +4,7 @@ import { UserRepository } from "../repositories/user.repository.js";
 import { TokenService } from "../services/token.service.js";
 import { MailService } from "../services/mail.service.js";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
+import { authMiddleware } from "../middleware/auth.middleware.js";
 
 const app = new Hono();
 
@@ -67,7 +68,17 @@ app.post("/logout", async (c) => {
   return c.json({ data: "ok" });
 });
 
-// app.get("/me", (c) => {});
+app.get("/me", authMiddleware, async (c) => {
+  const id = c.get("userId" as never) as string;
+
+  const user = await userService.getMe(id);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return c.json({ data: user });
+});
 
 // app.get("/refresh", (c) => {});
 

@@ -1,4 +1,4 @@
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import { jwtAccessSecret, jwtRefreshSecret } from "../../config.js";
 import { TokenRepository } from "../repositories/token.repository.js";
 
@@ -39,5 +39,14 @@ export class TokenService {
 
   async removeToken(token: string): Promise<void> {
     await this.tokenRepository.removeToken(token);
+  }
+
+  static async validateAccessToken(token: string) {
+    return (await verify(token, jwtAccessSecret)) as {
+      sub: string;
+      isActivated: boolean;
+      iat: number;
+      exp: number;
+    };
   }
 }

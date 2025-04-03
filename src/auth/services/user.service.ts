@@ -82,4 +82,9 @@ export class UserService {
   async logout(refreshToken: string) {
     await this.tokenService.removeToken(refreshToken);
   }
+
+  async getMe(userId: string) {
+    const user = await this.userRepository.findOneById(userId);
+    return user;
+  }
 }
