@@ -36,4 +36,8 @@ export class TokenService {
   async saveToken(token: string, userId: string): Promise<void> {
     return await this.tokenRepository.saveToken(token, userId);
   }
+
+  async removeToken(token: string): Promise<void> {
+    await this.tokenRepository.removeToken(token);
+  }
 }

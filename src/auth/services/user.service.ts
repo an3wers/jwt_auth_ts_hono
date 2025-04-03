@@ -78,4 +78,8 @@ export class UserService {
       }),
     };
   }
+
+  async logout(refreshToken: string) {
+    await this.tokenService.removeToken(refreshToken);
+  }
 }

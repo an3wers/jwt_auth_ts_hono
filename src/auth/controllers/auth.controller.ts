@@ -3,7 +3,7 @@ import { UserService } from "../services/user.service.js";
 import { UserRepository } from "../repositories/user.repository.js";
 import { TokenService } from "../services/token.service.js";
 import { MailService } from "../services/mail.service.js";
-import { setCookie } from "hono/cookie";
+import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 
 const app = new Hono();
 
@@ -55,7 +55,17 @@ app.post("/login", async (c) => {
   return c.json({ data });
 });
 
-// app.post("/logout", (c) => {});
+app.post("/logout", async (c) => {
+  const refreshToken = getCookie(c, "_refreshToken");
+
+  if (!refreshToken) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  await userService.logout(refreshToken);
+  deleteCookie(c, "_refreshToken");
+  return c.json({ data: "ok" });
+});
 
 // app.get("/me", (c) => {});
 

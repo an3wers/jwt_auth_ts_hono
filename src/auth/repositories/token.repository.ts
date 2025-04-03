@@ -6,4 +6,10 @@ export class TokenRepository {
 
     await DatabaseConnection.getPool().query(query, [token, userId]);
   }
+
+  async removeToken(token: string): Promise<void> {
+    const query = "DELETE FROM tokens WHERE token = $1";
+
+    await DatabaseConnection.getPool().query(query, [token]);
+  }
 }
