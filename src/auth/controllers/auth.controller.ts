@@ -18,30 +18,42 @@ app.get("/helth-check", (c) => {
 });
 
 app.post("/register", async (c) => {
-  try {
-    const { email, password } = await c.req.json<{
-      email: string;
-      password: string;
-    }>();
+  const { email, password } = await c.req.json<{
+    email: string;
+    password: string;
+  }>();
 
-    const userData = await userService.register(email, password);
+  const userData = await userService.register(email, password);
 
-    const { refreshToken, ...data } = userData;
+  const { refreshToken, ...data } = userData;
 
-    setCookie(c, "_refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
-    });
+  setCookie(c, "_refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  });
 
-    return c.json({ data });
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
+  return c.json({ data });
 });
 
-// app.post("/login", (c) => {});
+app.post("/login", async (c) => {
+  const { email, password } = await c.req.json<{
+    email: string;
+    password: string;
+  }>();
+
+  const userData = await userService.login(email, password);
+
+  const { refreshToken, ...data } = userData;
+
+  setCookie(c, "_refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  });
+
+  return c.json({ data });
+});
 
 // app.post("/logout", (c) => {});
 

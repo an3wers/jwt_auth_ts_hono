@@ -13,7 +13,10 @@ export class UserService {
     private readonly mailService: MailService
   ) {}
 
-  async register(email: string, password: string) {
+  async register(
+    email: string,
+    password: string
+  ): Promise<{ user: UserDto; refreshToken: string; accessToken: string }> {
     const condidate = await this.userRepository.findOneByEmail(email);
 
     if (condidate) {
@@ -40,5 +43,39 @@ export class UserService {
     await this.tokenService.saveToken(tokens.refreshToken, userDto.id);
 
     return { ...tokens, user: userDto };
+  }
+
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: UserDto; refreshToken: string; accessToken: string }> {
+    const user = await this.userRepository.findOneByEmail(email);
+
+    // TODO: add errors handler
+    if (!user) {
+      throw new Error(`User with email ${email} not found`);
+    }
+
+    const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+
+    if (!isValidPassword) {
+      throw new Error("Invalid data");
+    }
+
+    const tokens = await this.tokenService.generateTokens({
+      id: user.id,
+      isActivated: user.isActivated,
+    });
+
+    await this.tokenService.saveToken(tokens.refreshToken, user.id);
+
+    return {
+      ...tokens,
+      user: new UserDto({
+        email: user.email,
+        id: user.id,
+        isActivated: user.isActivated,
+      }),
+    };
   }
 }
