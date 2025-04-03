@@ -1,10 +1,12 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { authController } from "./auth/controllers/auth.controller.js";
+import { mailController } from "./auth/controllers/mail.controller.js";
 import { cors } from "hono/cors";
 import { prettyJSON } from "hono/pretty-json";
 import { logger } from "hono/logger";
 import { config } from "dotenv";
+import { DatabaseConnection } from "./database/connection.js";
 
 config();
 
@@ -15,6 +17,9 @@ app.use("*", logger());
 
 app.use("/api/*", cors());
 
+await DatabaseConnection.init();
+
+app.route("/api/mail", mailController);
 app.route("/api/auth", authController);
 
 app.onError((err, c) => {
