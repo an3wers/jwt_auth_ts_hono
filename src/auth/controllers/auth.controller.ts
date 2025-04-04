@@ -80,9 +80,25 @@ app.get("/me", authMiddleware, async (c) => {
   return c.json({ data: user });
 });
 
-// app.get("/refresh", (c) => {});
+app.get("/refresh", async (c) => {
+  const token = getCookie(c, "_refreshToken");
 
-// app.get("/users", (c) => {});
+  if (!token) {
+    return c.json({ message: "Unauthorized" }, 401);
+  }
+
+  const { accessToken, refreshToken } = await userService.refresh(token);
+
+  setCookie(c, "_refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+  });
+
+  return c.json({ data: accessToken });
+});
+
+app.get("/users", authMiddleware, async (c) => {});
 
 // app.get("/tokens", (c) => {});
 

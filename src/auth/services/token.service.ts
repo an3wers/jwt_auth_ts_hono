@@ -41,12 +41,58 @@ export class TokenService {
     await this.tokenRepository.removeToken(token);
   }
 
+  async validateAccessToken(token: string) {
+    try {
+      return (await verify(token, jwtAccessSecret)) as {
+        sub: string;
+        isActivated: boolean;
+        iat: number;
+        exp: number;
+      };
+    } catch {
+      return null;
+    }
+  }
+
   static async validateAccessToken(token: string) {
-    return (await verify(token, jwtAccessSecret)) as {
-      sub: string;
-      isActivated: boolean;
-      iat: number;
-      exp: number;
-    };
+    try {
+      return (await verify(token, jwtAccessSecret)) as {
+        sub: string;
+        isActivated: boolean;
+        iat: number;
+        exp: number;
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async validateRefreshToken(token: string) {
+    try {
+      return (await verify(token, jwtRefreshSecret)) as {
+        sub: string;
+        isActivated: boolean;
+        iat: number;
+        exp: number;
+      };
+    } catch {
+      return null;
+    }
+  }
+  static async validateRefreshToken(token: string) {
+    try {
+      return (await verify(token, jwtRefreshSecret)) as {
+        sub: string;
+        isActivated: boolean;
+        iat: number;
+        exp: number;
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  async findToken(token: string) {
+    return await this.tokenRepository.findToken(token);
   }
 }

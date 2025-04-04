@@ -12,4 +12,14 @@ export class TokenRepository {
 
     await DatabaseConnection.getPool().query(query, [token]);
   }
+
+  async findToken(token: string): Promise<string | null> {
+    const query = "SELECT token FROM tokens WHERE token = $1";
+
+    const { rows } = await DatabaseConnection.getPool().query(query, [token]);
+
+    if (rows.length === 0) return null;
+
+    return rows[0].token;
+  }
 }

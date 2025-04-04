@@ -87,4 +87,31 @@ export class UserService {
     const user = await this.userRepository.findOneById(userId);
     return user;
   }
+
+  async refresh(refreshToken: string) {
+    const payload = await this.tokenService.validateRefreshToken(refreshToken);
+    const tokenFromDB = await this.tokenService.findToken(refreshToken);
+
+    if (!payload || !tokenFromDB) {
+      throw new Error("Unauthorized");
+    }
+
+    const user = await this.userRepository.findOneById(payload.sub);
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const newTokens = await this.tokenService.generateTokens({
+      id: user.id,
+      isActivated: user.isActivated,
+    });
+
+    await this.tokenService.saveToken(newTokens.refreshToken, user.id);
+
+    // remove old refresh token from db
+    await this.tokenService.removeToken(refreshToken);
+
+    return newTokens;
+  }
 }
