@@ -1,0 +1,19 @@
+import { DatabaseConnection } from "../../database/connection.js";
+export class TokenRepository {
+    async saveToken(token, userId) {
+        const query = "INSERT INTO tokens (token, user_id) VALUES ($1, $2)";
+        await DatabaseConnection.getPool().query(query, [token, userId]);
+    }
+    async removeToken(token) {
+        const query = "DELETE FROM tokens WHERE token = $1";
+        await DatabaseConnection.getPool().query(query, [token]);
+    }
+    async findToken(token) {
+        const query = "SELECT token FROM tokens WHERE token = $1";
+        const { rows } = await DatabaseConnection.getPool().query(query, [token]);
+        if (rows.length === 0)
+            return null;
+        return rows[0].token;
+    }
+}
+//# sourceMappingURL=token.repository.js.map

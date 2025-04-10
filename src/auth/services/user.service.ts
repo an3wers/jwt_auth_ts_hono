@@ -5,6 +5,8 @@ import { UserDto } from "../dtos/user.dto.js";
 import type { TokenService } from "./token.service.js";
 import type { MailService } from "./mail.service.js";
 import { isDev } from "../../utils/is-dev.js";
+import { HTTPException } from "hono/http-exception";
+import type { User } from "../model/user.model.js";
 
 export class UserService {
   constructor(
@@ -20,7 +22,9 @@ export class UserService {
     const condidate = await this.userRepository.findOneByEmail(email);
 
     if (condidate) {
-      throw new Error(`User with email ${email} already exist`);
+      throw new HTTPException(400, {
+        message: `User with email ${email} already exist`,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 5);
@@ -51,15 +55,18 @@ export class UserService {
   ): Promise<{ user: UserDto; refreshToken: string; accessToken: string }> {
     const user = await this.userRepository.findOneByEmail(email);
 
-    // TODO: add errors handler
     if (!user) {
-      throw new Error(`User with email ${email} not found`);
+      throw new HTTPException(404, {
+        message: `User with email ${email} not found`,
+      });
     }
 
     const isValidPassword = await bcrypt.compare(password, user.passwordHash);
 
     if (!isValidPassword) {
-      throw new Error("Invalid data");
+      throw new HTTPException(400, {
+        message: "Invalid data",
+      });
     }
 
     const tokens = await this.tokenService.generateTokens({
@@ -83,9 +90,12 @@ export class UserService {
     await this.tokenService.removeToken(refreshToken);
   }
 
-  async getMe(userId: string) {
-    const user = await this.userRepository.findOneById(userId);
-    return user;
+  getMe(userId: string): Promise<User | null> {
+    return this.userRepository.findOneById(userId);
+  }
+
+  getUsers(): Promise<User[] | null> {
+    return this.userRepository.findAll();
   }
 
   async refresh(refreshToken: string) {
@@ -93,13 +103,17 @@ export class UserService {
     const tokenFromDB = await this.tokenService.findToken(refreshToken);
 
     if (!payload || !tokenFromDB) {
-      throw new Error("Unauthorized");
+      throw new HTTPException(401, {
+        message: "Unauthorized",
+      });
     }
 
     const user = await this.userRepository.findOneById(payload.sub);
 
     if (!user) {
-      throw new Error("User not found");
+      throw new HTTPException(404, {
+        message: "Not found",
+      });
     }
 
     const newTokens = await this.tokenService.generateTokens({

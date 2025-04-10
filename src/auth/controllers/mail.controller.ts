@@ -4,13 +4,8 @@ import { MailService } from "../services/mail.service.js";
 const app = new Hono();
 
 app.get("/mail-tester", async (c) => {
-  try {
-    await new MailService().testMail();
-    return c.json({ message: "success" });
-  } catch (error) {
-    console.error(["MAIL-CONTROLLER: "], error);
-    throw error;
-  }
+  await new MailService().testMail();
+  return c.json({ message: "success" });
 });
 
 export const mailController = app;

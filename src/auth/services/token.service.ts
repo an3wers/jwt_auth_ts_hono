@@ -92,7 +92,7 @@ export class TokenService {
     }
   }
 
-  async findToken(token: string) {
-    return await this.tokenRepository.findToken(token);
+  findToken(token: string) {
+    return this.tokenRepository.findToken(token);
   }
 }

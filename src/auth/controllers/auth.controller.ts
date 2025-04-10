@@ -5,6 +5,7 @@ import { TokenService } from "../services/token.service.js";
 import { MailService } from "../services/mail.service.js";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import { authMiddleware } from "../middleware/auth.middleware.js";
+import { HTTPException } from "hono/http-exception";
 
 const app = new Hono();
 
@@ -13,6 +14,8 @@ const userService = new UserService(
   new TokenService(),
   new MailService()
 );
+
+// TODO: Добавить ZOD валидацию к requests
 
 app.get("/helth-check", (c) => {
   return c.json({ message: "success" });
@@ -74,7 +77,7 @@ app.get("/me", authMiddleware, async (c) => {
   const user = await userService.getMe(id);
 
   if (!user) {
-    throw new Error("User not found");
+    throw new HTTPException(404, { message: "User not found" });
   }
 
   return c.json({ data: user });
@@ -84,7 +87,7 @@ app.get("/refresh", async (c) => {
   const token = getCookie(c, "_refreshToken");
 
   if (!token) {
-    return c.json({ message: "Unauthorized" }, 401);
+    throw new HTTPException(401, { message: "Unauthorized" });
   }
 
   const { accessToken, refreshToken } = await userService.refresh(token);
@@ -98,7 +101,10 @@ app.get("/refresh", async (c) => {
   return c.json({ data: accessToken });
 });
 
-app.get("/users", authMiddleware, async (c) => {});
+app.get("/users", authMiddleware, async (c) => {
+  const users = await userService.getUsers();
+  return c.json({ data: users });
+});
 
 // app.get("/tokens", (c) => {});
 
