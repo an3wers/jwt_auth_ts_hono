@@ -1,3 +1,5 @@
+import type { UserRights } from "../constants.js";
+
 export class UserDto {
   id: string;
   email: string;
@@ -26,5 +28,36 @@ export class CreateUserDto {
     this.password = model.password;
     this.isActivated = model.isActivated ?? false;
     this.activationLink = model.activationLink;
+  }
+}
+
+export class UpdateUserDto {
+  id: string;
+  email: string;
+  isActivated: boolean;
+  rights: UserRights[];
+
+  constructor(model: {
+    id: string;
+    email: string;
+    isActivated: boolean;
+    rights: UserRights[];
+  }) {
+    this.email = model.email;
+    this.isActivated = model.isActivated;
+    this.rights = model.rights;
+    this.id = model.id;
+  }
+}
+
+export class UpdateUserPasswordDto {
+  id: string;
+  oldPassword: string;
+  newPassword: string;
+
+  constructor(model: { id: string; oldPassword: string; newPassword: string }) {
+    this.id = model.id;
+    this.oldPassword = model.oldPassword;
+    this.newPassword = model.newPassword;
   }
 }

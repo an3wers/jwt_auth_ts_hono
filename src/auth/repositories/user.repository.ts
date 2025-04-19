@@ -1,10 +1,11 @@
-import type { CreateUserDto } from "../dtos/user.dto.js";
+import type { CreateUserDto, UpdateUserDto } from "../dtos/user.dto.js";
 import { DatabaseConnection } from "../../database/connection.js";
 import { User } from "../model/user.model.js";
+import { userRights } from "../constants.js";
 
 export class UserRepository {
   async findOneById(id: string): Promise<User | null> {
-    const query = "SELECT * FROM users WHERE id = $1";
+    const query = "SELECT * FROM users WHERE user_id = $1";
 
     const { rows } = await DatabaseConnection.getPool().query(query, [id]);
 
@@ -16,6 +17,7 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
+      rights: [userRights.USER],
     });
 
     return user;
@@ -33,6 +35,7 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
+      rights: rows[0].rights,
     });
 
     return user;
@@ -52,6 +55,7 @@ export class UserRepository {
           passwordHash: user.password_hash,
           isActivated: user.is_activated,
           activationLink: user.activation_link,
+          rights: user.rights,
         })
     );
 
@@ -74,8 +78,32 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
+      rights: rows[0].rights,
     });
 
     return createdUser;
+  }
+
+  async update(user: UpdateUserDto): Promise<User> {
+    const query =
+      "UPDATE users SET email = $1, is_activated = $2, rights = $3 WHERE user_id = $4 RETURNING *";
+
+    const { rows } = await DatabaseConnection.getPool().query(query, [
+      user.email,
+      user.isActivated,
+      `{${user.rights.join(",")}}`,
+      user.id,
+    ]);
+
+    const updatedUser = new User({
+      id: rows[0].user_id,
+      email: rows[0].email,
+      passwordHash: rows[0].password_hash,
+      isActivated: rows[0].is_activated,
+      activationLink: rows[0].activation_link,
+      rights: rows[0].rights,
+    });
+
+    return updatedUser;
   }
 }
