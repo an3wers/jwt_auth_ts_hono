@@ -6,6 +6,7 @@ import { MailService } from "../services/mail.service.js";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
 import { authMiddleware } from "../middleware/auth.middleware.js";
 import { HTTPException } from "hono/http-exception";
+import type { UserRights } from "../constants.js";
 
 const app = new Hono();
 
@@ -104,6 +105,33 @@ app.get("/refresh", async (c) => {
 app.get("/users", authMiddleware, async (c) => {
   const users = await userService.getUsers();
   return c.json({ data: users });
+});
+
+app.put("/users/:id", authMiddleware, async (c) => {
+  const id = c.req.param("id");
+  const { email, isActivated, rights } = await c.req.json<{
+    email: string;
+    isActivated: boolean;
+    rights: UserRights[];
+  }>();
+
+  const updatedUser = await userService.updateUser({
+    id,
+    email,
+    isActivated,
+    rights,
+  });
+
+  return c.json({ data: updatedUser });
+});
+
+// TODO: сделать обновление всех полей в app.put("/users/:id"...
+app.patch("/users-password/:id", authMiddleware, async (c) => {
+  const id = c.req.param("id");
+  const { oldPassword, newPassword } = await c.req.json<{
+    oldPassword: string;
+    newPassword: string;
+  }>();
 });
 
 // app.get("/tokens", (c) => {});

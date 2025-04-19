@@ -1,7 +1,7 @@
 import type { UserRepository } from "../repositories/user.repository.js";
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
-import { UserDto } from "../dtos/user.dto.js";
+import { UpdateUserDto, UserDto } from "../dtos/user.dto.js";
 import type { TokenService } from "./token.service.js";
 import type { MailService } from "./mail.service.js";
 import { isDev } from "../../utils/is-dev.js";
@@ -96,6 +96,18 @@ export class UserService {
 
   getUsers(): Promise<User[] | null> {
     return this.userRepository.findAll();
+  }
+
+  updateUser(user: UpdateUserDto): Promise<User | null> {
+    const candidate = this.userRepository.findOneById(user.id);
+
+    if (!candidate) {
+      throw new HTTPException(404, {
+        message: "Not found",
+      });
+    }
+
+    return this.userRepository.update(user);
   }
 
   async refresh(refreshToken: string) {
