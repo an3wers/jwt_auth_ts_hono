@@ -72,6 +72,7 @@ export class UserService {
     const tokens = await this.tokenService.generateTokens({
       id: user.id,
       isActivated: user.isActivated,
+      rights: user.rights,
     });
 
     await this.tokenService.saveToken(tokens.refreshToken, user.id);
@@ -82,6 +83,7 @@ export class UserService {
         email: user.email,
         id: user.id,
         isActivated: user.isActivated,
+        rights: user.rights,
       }),
     };
   }
@@ -131,6 +133,7 @@ export class UserService {
     const newTokens = await this.tokenService.generateTokens({
       id: user.id,
       isActivated: user.isActivated,
+      rights: user.rights,
     });
 
     await this.tokenService.saveToken(newTokens.refreshToken, user.id);

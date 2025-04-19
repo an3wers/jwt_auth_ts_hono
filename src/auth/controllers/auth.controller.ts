@@ -107,31 +107,27 @@ app.get("/users", authMiddleware, async (c) => {
   return c.json({ data: users });
 });
 
-app.put("/users/:id", authMiddleware, async (c) => {
+app.patch("/users/:id", authMiddleware, async (c) => {
   const id = c.req.param("id");
-  const { email, isActivated, rights } = await c.req.json<{
-    email: string;
-    isActivated: boolean;
-    rights: UserRights[];
-  }>();
+  const { email, isActivated, rights, newPassword, oldPassword } =
+    await c.req.json<{
+      email?: string;
+      isActivated?: boolean;
+      rights?: UserRights[];
+      oldPassword?: string;
+      newPassword?: string;
+    }>();
 
   const updatedUser = await userService.updateUser({
     id,
     email,
     isActivated,
     rights,
+    newPassword,
+    oldPassword,
   });
 
   return c.json({ data: updatedUser });
-});
-
-// TODO: сделать обновление всех полей в app.put("/users/:id"...
-app.patch("/users-password/:id", authMiddleware, async (c) => {
-  const id = c.req.param("id");
-  const { oldPassword, newPassword } = await c.req.json<{
-    oldPassword: string;
-    newPassword: string;
-  }>();
 });
 
 // app.get("/tokens", (c) => {});

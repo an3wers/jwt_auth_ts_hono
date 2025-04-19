@@ -17,7 +17,7 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
-      rights: [userRights.USER],
+      rights: rows[0].rights, // TODO: Преобразовать в массив
     });
 
     return user;
@@ -35,7 +35,7 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
-      rights: rows[0].rights,
+      rights: rows[0].rights, // TODO: Преобразовать в массив
     });
 
     return user;
@@ -55,7 +55,7 @@ export class UserRepository {
           passwordHash: user.password_hash,
           isActivated: user.is_activated,
           activationLink: user.activation_link,
-          rights: user.rights,
+          rights: user.rights, // TODO: Преобразовать в массив
         })
     );
 
@@ -78,13 +78,14 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
-      rights: rows[0].rights,
+      rights: rows[0].rights, // TODO: Преобразовать в массив
     });
 
     return createdUser;
   }
 
-  async update(user: UpdateUserDto): Promise<User> {
+  // TODO: Сделать праверку на переданные поля, все полня UpdateUserDto могут быть опциональными
+  async update(user: Partial<UpdateUserDto> & { id: string }): Promise<User> {
     const query =
       "UPDATE users SET email = $1, is_activated = $2, rights = $3 WHERE user_id = $4 RETURNING *";
 
@@ -101,7 +102,7 @@ export class UserRepository {
       passwordHash: rows[0].password_hash,
       isActivated: rows[0].is_activated,
       activationLink: rows[0].activation_link,
-      rights: rows[0].rights,
+      rights: rows[0].rights, // TODO: Преобразовать в массив
     });
 
     return updatedUser;

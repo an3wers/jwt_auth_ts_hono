@@ -4,11 +4,18 @@ export class UserDto {
   id: string;
   email: string;
   isActivated: boolean;
+  rights: UserRights[];
 
-  constructor(model: { email: string; id: string; isActivated: boolean }) {
+  constructor(model: {
+    email: string;
+    id: string;
+    isActivated: boolean;
+    rights: UserRights[];
+  }) {
     this.email = model.email;
     this.id = model.id;
     this.isActivated = model.isActivated;
+    this.rights = model.rights;
   }
 }
 
@@ -33,29 +40,23 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   id: string;
-  email: string;
-  isActivated: boolean;
-  rights: UserRights[];
+  email: string | undefined;
+  isActivated: boolean | undefined;
+  rights: UserRights[] | undefined;
+  oldPassword: string | undefined;
+  newPassword: string | undefined;
 
   constructor(model: {
     id: string;
-    email: string;
-    isActivated: boolean;
-    rights: UserRights[];
+    email?: string;
+    isActivated?: boolean;
+    rights?: UserRights[];
+    oldPassword?: string;
+    newPassword?: string;
   }) {
     this.email = model.email;
     this.isActivated = model.isActivated;
     this.rights = model.rights;
-    this.id = model.id;
-  }
-}
-
-export class UpdateUserPasswordDto {
-  id: string;
-  oldPassword: string;
-  newPassword: string;
-
-  constructor(model: { id: string; oldPassword: string; newPassword: string }) {
     this.id = model.id;
     this.oldPassword = model.oldPassword;
     this.newPassword = model.newPassword;

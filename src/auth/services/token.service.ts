@@ -1,6 +1,8 @@
 import { sign, verify } from "hono/jwt";
 import { jwtAccessSecret, jwtRefreshSecret } from "../../config.js";
 import { TokenRepository } from "../repositories/token.repository.js";
+import type { User } from "../model/user.model.js";
+import type { UserRights } from "../constants.js";
 
 export class TokenService {
   tokenRepository: TokenRepository;
@@ -9,11 +11,16 @@ export class TokenService {
     this.tokenRepository = new TokenRepository();
   }
 
-  async generateTokens(payload: { id: string; isActivated: boolean }) {
+  async generateTokens(payload: {
+    id: string;
+    isActivated: boolean;
+    rights: UserRights[];
+  }) {
     const refreshToken = await sign(
       {
         sub: payload.id,
         isActivated: payload.isActivated,
+        rights: payload.rights.join(","),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days,
         iat: Math.floor(Date.now() / 1000),
       },
@@ -24,6 +31,7 @@ export class TokenService {
       {
         sub: payload.id,
         isActivated: payload.isActivated,
+        rights: payload.rights.join(","),
         exp: Math.floor(Date.now() / 1000) + 60 * 15, // 15 minutes,
         iat: Math.floor(Date.now() / 1000),
       },
@@ -46,6 +54,7 @@ export class TokenService {
       return (await verify(token, jwtAccessSecret)) as {
         sub: string;
         isActivated: boolean;
+        rights: string;
         iat: number;
         exp: number;
       };
@@ -59,6 +68,7 @@ export class TokenService {
       return (await verify(token, jwtAccessSecret)) as {
         sub: string;
         isActivated: boolean;
+        rights: string;
         iat: number;
         exp: number;
       };
@@ -72,6 +82,7 @@ export class TokenService {
       return (await verify(token, jwtRefreshSecret)) as {
         sub: string;
         isActivated: boolean;
+        rights: string;
         iat: number;
         exp: number;
       };
@@ -84,6 +95,7 @@ export class TokenService {
       return (await verify(token, jwtRefreshSecret)) as {
         sub: string;
         isActivated: boolean;
+        rights: string;
         iat: number;
         exp: number;
       };
