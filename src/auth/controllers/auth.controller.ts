@@ -130,8 +130,6 @@ app.patch("/users/:id", authMiddleware, async (c) => {
   return c.json({ data: updatedUser });
 });
 
-// app.get("/tokens", (c) => {});
-
 // app.get("/activate/:link", (c) => {});
 
 export const authController = app;

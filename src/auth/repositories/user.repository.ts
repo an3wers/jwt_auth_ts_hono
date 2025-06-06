@@ -92,7 +92,7 @@ export class UserRepository {
     const { rows } = await DatabaseConnection.getPool().query(query, [
       user.email,
       user.isActivated,
-      `{${user.rights.join(",")}}`,
+      `{${user.rights?.join(",")}}`,
       user.id,
     ]);
 

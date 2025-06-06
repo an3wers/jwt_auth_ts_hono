@@ -20,6 +20,7 @@ app.use("/api/*", cors());
 
 await DatabaseConnection.init();
 
+// mailController пока не работает, нужно подлючить домен к mail-серверу
 app.route("/api/mail", mailController);
 app.route("/api/auth", authController);
 

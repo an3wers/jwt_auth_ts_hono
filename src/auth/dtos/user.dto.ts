@@ -40,11 +40,11 @@ export class CreateUserDto {
 
 export class UpdateUserDto {
   id: string;
-  email: string | undefined;
-  isActivated: boolean | undefined;
-  rights: UserRights[] | undefined;
-  oldPassword: string | undefined;
-  newPassword: string | undefined;
+  email?: string;
+  isActivated?: boolean;
+  rights?: UserRights[];
+  oldPassword?: string;
+  newPassword?: string;
 
   constructor(model: {
     id: string;
