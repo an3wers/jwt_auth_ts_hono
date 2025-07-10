@@ -107,27 +107,42 @@ app.get("/users", authMiddleware, async (c) => {
   return c.json({ data: users });
 });
 
-app.patch("/users/:id", authMiddleware, async (c) => {
-  const id = c.req.param("id");
-  const { email, isActivated, rights, newPassword, oldPassword } =
-    await c.req.json<{
-      email?: string;
-      isActivated?: boolean;
-      rights?: UserRights[];
-      oldPassword?: string;
-      newPassword?: string;
-    }>();
+app.patch("/users", authMiddleware, async (c) => {
+  const id = c.get("userId" as never) as string;
+  const { email, isActivated, rights } = await c.req.json<{
+    email?: string;
+    isActivated?: boolean;
+    rights?: UserRights[];
+  }>();
 
   const updatedUser = await userService.updateUser({
     id,
     email,
     isActivated,
     rights,
-    newPassword,
-    oldPassword,
   });
 
   return c.json({ data: updatedUser });
+});
+
+app.post("/users/update-password", authMiddleware, async (c) => {
+  const id = c.get("userId" as never) as string;
+  const { oldPassword, newPassword } = await c.req.json<{
+    oldPassword: string;
+    newPassword: string;
+  }>();
+
+  const updatedUser = await userService.updatePassword({
+    id,
+    oldPassword,
+    newPassword,
+  });
+
+  if (updatedUser === null) {
+    return c.json({ message: "Invalid data" }, 400);
+  }
+
+  return c.json({ data: "Password updated successfully" });
 });
 
 // app.get("/activate/:link", (c) => {});

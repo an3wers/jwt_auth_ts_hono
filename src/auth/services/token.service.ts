@@ -20,7 +20,7 @@ export class TokenService {
       {
         sub: payload.id,
         isActivated: payload.isActivated,
-        rights: payload.rights.join(","),
+        rights: JSON.stringify(payload.rights.join),
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30, // 30 days,
         iat: Math.floor(Date.now() / 1000),
       },
@@ -31,7 +31,7 @@ export class TokenService {
       {
         sub: payload.id,
         isActivated: payload.isActivated,
-        rights: payload.rights.join(","),
+        rights: JSON.stringify(payload.rights.join),
         exp: Math.floor(Date.now() / 1000) + 60 * 15, // 15 minutes,
         iat: Math.floor(Date.now() / 1000),
       },

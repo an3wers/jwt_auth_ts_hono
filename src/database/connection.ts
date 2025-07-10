@@ -1,13 +1,11 @@
 import { dbConnection } from "../config.js";
 import pg from "pg";
 
-const { Pool } = pg;
-
 export class DatabaseConnection {
-  private static pool: any;
+  private static pool: pg.Pool;
 
   static async init() {
-    this.pool = new Pool({
+    this.pool = new pg.Pool({
       user: dbConnection.user,
       password: dbConnection.password,
       host: dbConnection.host,

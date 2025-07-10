@@ -43,22 +43,16 @@ export class UpdateUserDto {
   email?: string;
   isActivated?: boolean;
   rights?: UserRights[];
-  oldPassword?: string;
-  newPassword?: string;
 
   constructor(model: {
     id: string;
     email?: string;
     isActivated?: boolean;
     rights?: UserRights[];
-    oldPassword?: string;
-    newPassword?: string;
   }) {
     this.email = model.email;
     this.isActivated = model.isActivated;
     this.rights = model.rights;
     this.id = model.id;
-    this.oldPassword = model.oldPassword;
-    this.newPassword = model.newPassword;
   }
 }

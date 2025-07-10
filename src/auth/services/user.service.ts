@@ -143,4 +143,40 @@ export class UserService {
 
     return newTokens;
   }
+
+  async updatePassword({
+    id,
+    oldPassword,
+    newPassword,
+  }: {
+    id: string;
+    oldPassword: string;
+    newPassword: string;
+  }): Promise<User | null> {
+    const user = await this.userRepository.findOneById(id);
+
+    if (!user) {
+      throw new HTTPException(404, {
+        message: "Not found",
+      });
+    }
+
+    const isValidPassword = await bcrypt.compare(
+      oldPassword,
+      user.passwordHash
+    );
+
+    if (!isValidPassword) {
+      throw new HTTPException(400, {
+        message: "Invalid data",
+      });
+    }
+
+    const newHashedPassword = await bcrypt.hash(newPassword, 5);
+    const updatedUser = await this.userRepository.updatePassword(
+      id,
+      newHashedPassword
+    );
+    return updatedUser;
+  }
 }
