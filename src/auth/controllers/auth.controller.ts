@@ -30,7 +30,7 @@ app.post("/register", async (c) => {
 
   const userData = await userService.register(email, password);
 
-  const { refreshToken, ...data } = userData;
+  const { refreshToken } = userData;
 
   setCookie(c, "_refreshToken", refreshToken, {
     httpOnly: true,
@@ -38,7 +38,7 @@ app.post("/register", async (c) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
   });
 
-  return c.json({ data });
+  return c.json({ data: userData });
 });
 
 app.post("/login", async (c) => {
@@ -49,7 +49,7 @@ app.post("/login", async (c) => {
 
   const userData = await userService.login(email, password);
 
-  const { refreshToken, ...data } = userData;
+  const { refreshToken } = userData;
 
   setCookie(c, "_refreshToken", refreshToken, {
     httpOnly: true,
@@ -57,7 +57,7 @@ app.post("/login", async (c) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
   });
 
-  return c.json({ data });
+  return c.json({ data: userData });
 });
 
 app.post("/logout", async (c) => {
@@ -84,8 +84,13 @@ app.get("/me", authMiddleware, async (c) => {
   return c.json({ data: user });
 });
 
-app.get("/refresh", async (c) => {
-  const token = getCookie(c, "_refreshToken");
+app.post("/refresh", async (c) => {
+  let token = getCookie(c, "_refreshToken");
+
+  if (!token) {
+    const { refreshToken } = await c.req.json<{ refreshToken: string }>();
+    token = refreshToken;
+  }
 
   if (!token) {
     throw new HTTPException(401, { message: "Unauthorized" });
@@ -99,7 +104,7 @@ app.get("/refresh", async (c) => {
     expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
   });
 
-  return c.json({ data: accessToken });
+  return c.json({ data: { accessToken, refreshToken } });
 });
 
 app.get("/users", authMiddleware, async (c) => {
